@@ -390,6 +390,13 @@ func (c *Connection) shutdown(err *Error) {
 		c.m.Lock()
 		defer c.m.Unlock()
 
+		// JGH: add a panic recover to not crash when the server shuts down under load
+		defer func() {
+			if r := recover(); r != nil {
+				// just swallow
+			}
+		}()
+
 		if err != nil {
 			for _, c := range c.closes {
 				c <- err
